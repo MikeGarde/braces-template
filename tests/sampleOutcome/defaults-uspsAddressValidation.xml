@@ -1,0 +1,10 @@
+<AddressValidateRequest USERID="12345">
+    <Address>
+        <Address1>Resident</Address1>
+        <Address2>2 E Bay St</Address2>
+        <City>Savannah</City>
+        <State>GA</State>
+        <Zip5>31401</Zip5>
+        <Zip4></Zip4>
+    </Address>
+</AddressValidateRequest>
