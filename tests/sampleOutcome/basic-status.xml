@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<status>
+    <from>1</from>
+    <to>2</to>
+    <datetime>2016-07-25 12:00:00</datetime>
+    <description>order approved</description>
+</status>
