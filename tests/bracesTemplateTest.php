@@ -43,4 +43,20 @@ class bracesTemplateTest extends TestCase {
 		$this->assertEquals($template, file_get_contents('tests/sampleOutcome/basic-status.xml'));
 	}
 
+	public function testLoadingWithDefaults()
+	{
+		$bt       = new bracesTemplate();
+		$file     = __DIR__ . '/sampleTemplates/defaults-uspsAddressValidation.xml';
+		$fields   = [
+			'userId'   => '12345',
+			'address2' => '2 E Bay St',
+			'city'     => 'Savannah',
+			'state'    => 'GA',
+			'zip5'     => '31401',
+		];
+		$template = $bt->fill($file, $fields);
+
+		$this->assertEquals($template, file_get_contents('tests/sampleOutcome/defaults-uspsAddressValidation.xml'));
+	}
+
 }
