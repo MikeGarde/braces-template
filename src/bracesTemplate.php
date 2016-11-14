@@ -1,30 +1,8 @@
 <?php namespace bracesTemplate;
 
+//   \{properties\}((.|\n)*)\{\/properties\}
+
 class bracesTemplate {
-
-	private $baseDir;
-
-	/**
-	 * bracesTemplate constructor.
-	 *
-	 * @param null $dir
-	 *
-	 * @throws \Exception
-	 */
-	public function __construct($dir = null)
-	{
-		if ($dir && is_dir($dir))
-		{
-			$this->baseDir = realpath($dir);
-		}
-		elseif ($dir)
-		{
-			$msg = 'Directory "%s" cannot be found.';
-			$msg = sprintf($msg, $dir);
-
-			throw new \Exception($msg);
-		}
-	}
 
 	/**
 	 * @param $file
@@ -32,51 +10,71 @@ class bracesTemplate {
 	 * @return string
 	 * @throws \Exception
 	 */
-	private function getTemplate($file)
+	static private function getTemplate($file)
 	{
-		if ($this->baseDir)
-		{
-			$path = $this->baseDir . '/' . $file;
-		}
-		else
-		{
-			$path = $file;
-		}
-
-		if (!is_file($path))
+		if (!is_file($file))
 		{
 			$msg = 'Template "%s" cannot be found.';
-			$msg = sprintf($msg, $path);
+			$msg = sprintf($msg, $file);
 
 			throw new \Exception($msg);
 		}
 
-		return file_get_contents($path);
+		return file_get_contents($file);
 	}
 
 	/**
-	 * @param      $fileName
-	 * @param      $fields
-	 * @param bool $formatForXml
+	 * @param        $file
+	 * @param        $fields
+	 * @param bool   $formatForXml
+	 * @param string $template
+	 * @param string $fileType
 	 *
 	 * @return mixed|string
 	 */
-	public function fill($fileName, $fields, $formatForXml = false)
+	static public function fill($file, $fields, $formatForXml = false, $template = '', $fileType = '')
 	{
-		$template = $this->getTemplate($fileName);
+		if ($file)
+		{
+			preg_match('/\.([a-z0-9]+)$/', $file, $matches);
+
+			$fileType = $matches[1];
+			$template = bracesTemplate::getTemplate($file);
+		}
 
 		if ($formatForXml)
 		{
 			foreach ($fields as $key => $value)
 			{
-				$fields[ $key ] = $this->formatXmlString($value);
+				$fields[ $key ] = bracesTemplate::formatXmlString($value);
 			}
 		}
 
 		foreach ($fields as $key => $value)
 		{
-			$pattern  = '/\{' . str_replace('/', '\/', preg_quote($key)) . '(?:[:](.*))?\}/m';
-			$template = preg_replace($pattern, $value, $template);
+			$key =  str_replace('/', '\/', preg_quote($key));
+
+			if (is_array($value))
+			{
+				if ($fileType == 'json') {
+					$pattern = '';
+				} else {
+					$pattern = '/\{%s\}((.|\n)*)\{\/%s\}/';
+				}
+				$pattern = sprintf($pattern, $key);
+
+				preg_match($pattern, $template, $matches);
+
+				$replacement = bracesTemplate::fill(false, $fields[ $key ], $formatForXml, $matches[1], $fileType);
+
+				$template = preg_replace($pattern, $value, $template);
+			}
+			else
+			{
+				$pattern  = '/\{%s(?:[:](.*))?\}/m';
+				$pattern = sprintf($pattern, $key);
+				$template = preg_replace($pattern, $value, $template);
+			}
 		}
 
 		preg_match_all('/\{(?:.*)[:](.*)?\}/', $template, $matches);
@@ -94,11 +92,11 @@ class bracesTemplate {
 	 *
 	 * @return mixed
 	 */
-	private function formatXmlString($val)
+	static private function formatXmlString($val)
 	{
 		$findArr = ['&', '<', '>'];
 		$repArr  = ['&amp;', '&lt;', '&gt;'];
 
-		return str_replace($findArr, $repArr, $val);;
+		return str_replace($findArr, $repArr, $val);
 	}
 }

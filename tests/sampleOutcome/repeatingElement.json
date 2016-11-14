@@ -1,0 +1,23 @@
+{
+  "total": 5,
+  "perPage": 2,
+  "currentPage": 1,
+  "list": [
+    {
+      "id": 1,
+      "name": "client name 1",
+      "feeStructure": {
+        "thisFee": "1.00",
+        "thatFee": "2.00"
+      }
+    },
+    {
+      "id": 2,
+      "name": "client name 2",
+      "feeStructure": {
+        "thisFee": "3.00",
+        "thatFee": "0.50"
+      }
+    }
+  ]
+}
